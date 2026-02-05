@@ -92,14 +92,6 @@ function Home() {
             SupportHub is a centralized customer support hub that routes chat, email, SMS, and phone requests to the right team based on
             priority and business rules. Every request becomes a trackable ticket with clear ownership.
           </p>
-          <div className="hero-actions">
-            <button className="primary" onClick={() => nav("/submit")}>
-              Submit A Ticket
-            </button>
-            <button className="secondary" onClick={() => nav("/submit?channel=chat")}>
-              Start Live Agent
-            </button>
-          </div>
         </div>
         <div className="hero-panel">
           <div className="panel-title">Support Hours</div>
@@ -138,7 +130,7 @@ function Home() {
           <p>Send details and get a case number instantly.</p>
           <div className="contact-detail">Response within 1 business day</div>
           <button className="link" onClick={() => nav("/submit")}>
-            Open Ticket Form
+            Submit A Ticket
           </button>
         </div>
       </section>
