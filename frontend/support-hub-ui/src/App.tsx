@@ -1,4 +1,4 @@
-import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import AgentPage from "./pages/AgentPage";
 import SupervisorPage from "./pages/SupervisorPage";
@@ -24,11 +24,27 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div style={{ fontFamily: "system-ui" }}>
       <div style={{ padding: 12, borderBottom: "1px solid #ddd", display: "flex", alignItems: "center", gap: 12 }}>
         <strong>SupportHub</strong>
-        <Link to="/">Home</Link>
-        <Link to="/submit">Submit Ticket</Link>
-        {role === "Agent" && <Link to="/agent">Agent</Link>}
-        {(role === "Supervisor" || role === "Admin") && <Link to="/supervisor">Supervisor</Link>}
-        {(role === "Supervisor" || role === "Admin") && <Link to="/rules">Rules</Link>}
+        <NavLink to="/" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+          Home
+        </NavLink>
+        <NavLink to="/submit" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+          Submit Ticket
+        </NavLink>
+        {role === "Agent" && (
+          <NavLink to="/agent" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+            Agent
+          </NavLink>
+        )}
+        {(role === "Supervisor" || role === "Admin") && (
+          <NavLink to="/supervisor" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+            Supervisor
+          </NavLink>
+        )}
+        {(role === "Supervisor" || role === "Admin") && (
+          <NavLink to="/rules" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+            Rules
+          </NavLink>
+        )}
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}>
           <span style={{ color: "#666" }}>
@@ -109,7 +125,10 @@ function Home() {
 
       <section className="contact-grid">
         <div className="contact-card">
-          <h3>Phone Support</h3>
+          <div className="contact-header">
+            <div className="contact-icon">📞</div>
+            <h2>Phone Support</h2>
+          </div>
           <p>Call and speak with an agent for urgent or complex issues.</p>
           <div className="contact-detail">1-800-555-0149</div>
           <div className="contact-meta">Average wait: 2-4 minutes</div>
@@ -118,7 +137,10 @@ function Home() {
           </a>
         </div>
         <div className="contact-card">
-          <h3>Live Agent</h3>
+          <div className="contact-header">
+            <div className="contact-icon">💬</div>
+            <h2>Live Agent</h2>
+          </div>
           <p>Chat with a support agent right now.</p>
           <div className="contact-detail">Available now</div>
           <button className="link" onClick={() => nav("/submit?channel=chat")}>
@@ -126,7 +148,10 @@ function Home() {
           </button>
         </div>
         <div className="contact-card">
-          <h3>Submit A Ticket</h3>
+          <div className="contact-header">
+            <div className="contact-icon">📝</div>
+            <h2>Submit A Ticket</h2>
+          </div>
           <p>Send details and get a case number instantly.</p>
           <div className="contact-detail">Response within 1 business day</div>
           <button className="link" onClick={() => nav("/submit")}>
