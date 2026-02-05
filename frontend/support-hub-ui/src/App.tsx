@@ -25,6 +25,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <div style={{ padding: 12, borderBottom: "1px solid #ddd", display: "flex", alignItems: "center", gap: 12 }}>
         <strong>SupportHub</strong>
         <Link to="/">Home</Link>
+        <Link to="/submit">Submit Ticket</Link>
         {role === "Agent" && <Link to="/agent">Agent</Link>}
         {(role === "Supervisor" || role === "Admin") && <Link to="/supervisor">Supervisor</Link>}
         {(role === "Supervisor" || role === "Admin") && <Link to="/rules">Rules</Link>}
@@ -63,8 +64,6 @@ export default function App() {
       // This proves real-time connectivity.
       // Each page has Refresh button.
     });
-
-    if (!role) nav("/login");
   }, []);
 
   return (
@@ -72,6 +71,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Home />} />
+        <Route path="/submit" element={<TicketSubmissionPage />} />
         <Route path="/agent" element={<AgentPage />} />
         <Route path="/supervisor" element={<SupervisorPage />} />
         <Route path="/rules" element={<RulesPage />} />
@@ -81,7 +81,77 @@ export default function App() {
 }
 
 function Home() {
-  const [channel, setChannel] = useState<"email" | "chat" | "sms">("email");
+  const nav = useNavigate();
+
+  return (
+    <div className="home">
+      <section className="hero">
+        <div>
+          <h1>Welcome to SupportHub</h1>
+          <p className="hero-subtitle">
+            SupportHub is a centralized customer support hub that routes chat, email, SMS, and phone requests to the right team based on
+            priority and business rules. Every request becomes a trackable ticket with clear ownership.
+          </p>
+          <div className="hero-actions">
+            <button className="primary" onClick={() => nav("/submit")}>
+              Submit A Ticket
+            </button>
+            <button className="secondary" onClick={() => nav("/submit?channel=chat")}>
+              Start Live Agent
+            </button>
+          </div>
+        </div>
+        <div className="hero-panel">
+          <div className="panel-title">Support Hours</div>
+          <div className="panel-row">
+            <span>Weekdays</span>
+            <span>8:00 AM - 8:00 PM</span>
+          </div>
+          <div className="panel-row">
+            <span>Weekend</span>
+            <span>10:00 AM - 6:00 PM</span>
+          </div>
+          <div className="panel-foot">Urgent issues are routed with highest priority.</div>
+        </div>
+      </section>
+
+      <section className="contact-grid">
+        <div className="contact-card">
+          <h3>Phone Support</h3>
+          <p>Call and speak with an agent for urgent or complex issues.</p>
+          <div className="contact-detail">1-800-555-0149</div>
+          <div className="contact-meta">Average wait: 2-4 minutes</div>
+          <a className="link" href="tel:18005550149">
+            Call Now
+          </a>
+        </div>
+        <div className="contact-card">
+          <h3>Live Agent</h3>
+          <p>Chat with a support agent right now.</p>
+          <div className="contact-detail">Available now</div>
+          <button className="link" onClick={() => nav("/submit?channel=chat")}>
+            Start Live Chat
+          </button>
+        </div>
+        <div className="contact-card">
+          <h3>Submit A Ticket</h3>
+          <p>Send details and get a case number instantly.</p>
+          <div className="contact-detail">Response within 1 business day</div>
+          <button className="link" onClick={() => nav("/submit")}>
+            Open Ticket Form
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TicketSubmissionPage() {
+  const nav = useNavigate();
+  const params = new URLSearchParams(window.location.search);
+  const initial = (params.get("channel") as "email" | "chat" | "sms" | null) ?? "email";
+
+  const [channel, setChannel] = useState<"email" | "chat" | "sms">(initial);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -122,60 +192,6 @@ function Home() {
 
   return (
     <div className="home">
-      <section className="hero">
-        <div>
-          <h1>SupportHub Customer Support</h1>
-          <p className="hero-subtitle">
-            Get help fast through phone, live agent chat, or ticket submission. Requests are routed automatically to the right team.
-          </p>
-          <div className="hero-actions">
-            <button className="primary" onClick={() => setChannel("chat")}>
-              Start Live Agent
-            </button>
-            <button className="secondary" onClick={() => setChannel("email")}>
-              Submit A Ticket
-            </button>
-          </div>
-        </div>
-        <div className="hero-panel">
-          <div className="panel-title">Support Hours</div>
-          <div className="panel-row">
-            <span>Weekdays</span>
-            <span>8:00 AM - 8:00 PM</span>
-          </div>
-          <div className="panel-row">
-            <span>Weekend</span>
-            <span>10:00 AM - 6:00 PM</span>
-          </div>
-          <div className="panel-foot">Urgent issues are routed with highest priority.</div>
-        </div>
-      </section>
-
-      <section className="contact-grid">
-        <div className="contact-card">
-          <h3>Phone Support</h3>
-          <p>Call and speak with an agent for urgent or complex issues.</p>
-          <div className="contact-detail">1-800-555-0149</div>
-          <div className="contact-meta">Average wait: 2-4 minutes</div>
-        </div>
-        <div className="contact-card">
-          <h3>Live Agent</h3>
-          <p>Chat with a support agent right now.</p>
-          <div className="contact-detail">Available now</div>
-          <button className="link" onClick={() => setChannel("chat")}>
-            Start Live Chat
-          </button>
-        </div>
-        <div className="contact-card">
-          <h3>Submit A Ticket</h3>
-          <p>Send details and get a case number instantly.</p>
-          <div className="contact-detail">Response within 1 business day</div>
-          <button className="link" onClick={() => setChannel("email")}>
-            Open Ticket Form
-          </button>
-        </div>
-      </section>
-
       <section className="form-section">
         <div className="form-header">
           <h2>Ticket Submission</h2>
@@ -215,6 +231,9 @@ function Home() {
           <div className="form-actions">
             <button className="primary" type="submit" disabled={!body.trim()}>
               Submit Ticket
+            </button>
+            <button type="button" className="secondary" onClick={() => nav("/")}>
+              Back To Home
             </button>
             {status && <div className="status success">{status}</div>}
             {error && <div className="status error">{error}</div>}
