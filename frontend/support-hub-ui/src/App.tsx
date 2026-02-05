@@ -13,6 +13,8 @@ function Shell({ children }: { children: React.ReactNode }) {
   const nav = useNavigate();
   const [name, setName] = useState(getName());
   const role = getRole();
+  const isAuthed = !!role;
+  const title = role ? `(${role})` : "(Guest)";
 
   useEffect(() => {
     setName(getName());
@@ -28,15 +30,21 @@ function Shell({ children }: { children: React.ReactNode }) {
         {(role === "Supervisor" || role === "Admin") && <Link to="/rules">Rules</Link>}
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 10, alignItems: "center" }}>
-          <span style={{ color: "#666" }}>{name ? `${name} (${role})` : ""}</span>
-          <button
-            onClick={() => {
-              clearAuth();
-              nav("/login");
-            }}
-          >
-            Logout
-          </button>
+          <span style={{ color: "#666" }}>
+            {isAuthed ? `${name ?? ""} ${title}`.trim() : "Viewing as guest"}
+          </span>
+          {!isAuthed ? (
+            <button onClick={() => nav("/login")}>Login</button>
+          ) : (
+            <button
+              onClick={() => {
+                clearAuth();
+                nav("/");
+              }}
+            >
+              Logout
+            </button>
+          )}
         </div>
       </div>
       {children}
