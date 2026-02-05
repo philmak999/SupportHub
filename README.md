@@ -44,5 +44,5 @@ npm run dev
 - **Compliance/SLA tracking**: Consistent queueing and priority logic to meet response targets.
 
 **Where To Look Next**
-- Backend details: `support-hub/backend/SupportHub.Api/README.md`
-- Frontend details: `support-hub/frontend/support-hub-ui/README.md`
+- Backend details: `https://github.com/philmak999/SupportHub/blob/main/backend/SupportHub.Api/README.md)`
+- Frontend details: `(https://github.com/philmak999/SupportHub/blob/main/frontend/support-hub-ui/README.md)`
