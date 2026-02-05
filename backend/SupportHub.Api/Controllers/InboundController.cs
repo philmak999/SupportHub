@@ -125,6 +125,17 @@ public class InboundController : ControllerBase
         await _router.ApplyRoutingAsync(ticketFull, ticketFull.Conversation!, msg);
         await _db.SaveChangesAsync();
 
+        // Compute simple queue position for live chat (same queue, open tickets)
+        var queuePosition = 0;
+        if (ticketFull.QueueId.HasValue)
+        {
+            queuePosition = await _db.Tickets.CountAsync(t =>
+                t.QueueId == ticketFull.QueueId &&
+                t.Status != TicketStatus.Closed &&
+                t.Status != TicketStatus.Resolved &&
+                t.CreatedAt <= ticketFull.CreatedAt);
+        }
+
         await _hub.Clients.Groups("Supervisor").SendAsync("TicketCreatedOrUpdated", new
         {
             ticketId = ticketFull.Id
@@ -139,6 +150,6 @@ public class InboundController : ControllerBase
             });
         }
 
-        return Ok(new { conversationId = convo.Id, ticketId = ticketFull.Id });
+        return Ok(new { conversationId = convo.Id, ticketId = ticketFull.Id, queuePosition });
     }
 }

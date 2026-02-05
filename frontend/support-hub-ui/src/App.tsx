@@ -6,7 +6,8 @@ import RulesPage from "./pages/RulesPage";
 import { clearAuth, getRole, getName } from "./auth/auth";
 import { useEffect, useRef, useState } from "react";
 import { startHub } from "./realtime/hub";
-import { api } from "./api/client";
+import * as signalR from "@microsoft/signalr";
+import { api, API_BASE } from "./api/client";
 import "./App.css";
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -15,13 +16,13 @@ function Shell({ children }: { children: React.ReactNode }) {
   const [name, setName] = useState(getName());
   const role = getRole();
   const isAuthed = !!role;
-  const title = role ? role : "Guest";
   const [botOpen, setBotOpen] = useState(false);
   const [botMessages, setBotMessages] = useState<{ from: "bot" | "user"; text: string }[]>([
     { from: "bot", text: "Hi! I’m the SupportHub assistant. How can I help?" },
   ]);
   const [botInput, setBotInput] = useState("");
   const [botTyping, setBotTyping] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     setName(getName());
@@ -65,12 +66,37 @@ function Shell({ children }: { children: React.ReactNode }) {
         <NavLink to="/" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
           Home
         </NavLink>
-        <NavLink to="/submit" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-          Submit Ticket
-        </NavLink>
-        <NavLink to="/live-chat" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
-          Live Agent
-        </NavLink>
+        {!isAuthed && (
+          <>
+            <NavLink to="/submit" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+              Submit Ticket
+            </NavLink>
+            <NavLink to="/live-chat" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+              Live Agent
+            </NavLink>
+          </>
+        )}
+        {isAuthed && (
+          <div
+            className="nav-dropdown"
+            onMouseEnter={() => setContactOpen(true)}
+            onMouseLeave={() => setContactOpen(false)}
+          >
+            <button className="nav-link nav-button" onClick={() => setContactOpen((v) => !v)}>
+              Contact
+            </button>
+            {contactOpen && (
+              <div className="nav-menu">
+                <NavLink to="/submit" className="nav-menu-item" onClick={() => setContactOpen(false)}>
+                  Submit Ticket
+                </NavLink>
+                <NavLink to="/live-chat" className="nav-menu-item" onClick={() => setContactOpen(false)}>
+                  Live Agent
+                </NavLink>
+              </div>
+            )}
+          </div>
+        )}
         {role === "Agent" && (
           <NavLink to="/agent" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
             Agent
@@ -210,11 +236,7 @@ export default function App() {
 
   useEffect(() => {
     // start real-time connection; refresh pages manually for now
-    startHub(() => {
-      // For simplicity: no global store; you can add one later.
-      // This proves real-time connectivity.
-      // Each page has Refresh button.
-    });
+    startHub();
   }, []);
 
   return (
@@ -397,7 +419,7 @@ function TicketSubmissionPage() {
 type ChatStep = "greeting" | "name" | "email" | "phone" | "issue" | "submitting" | "queued";
 
 function LiveChatPage() {
-  const [messages, setMessages] = useState<{ from: "bot" | "user"; text: string }[]>([
+  const [messages, setMessages] = useState<{ from: "bot" | "user" | "agent"; text: string }[]>([
     { from: "bot", text: "Hi! I'm SupportHub's virtual assistant. I can get you connected to a live agent." },
     { from: "bot", text: "First, what is your name?" },
   ]);
@@ -408,13 +430,41 @@ function LiveChatPage() {
   const [phone, setPhone] = useState("");
   const [issue, setIssue] = useState("");
   const [ticketId, setTicketId] = useState<number | null>(null);
+  const [queuePosition, setQueuePosition] = useState<number | null>(null);
+  const [conversationId, setConversationId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const [typing, setTyping] = useState(false);
+  const guestConnRef = useRef<signalR.HubConnection | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
+
+  useEffect(() => {
+    if (!conversationId) return;
+
+    const conn = new signalR.HubConnectionBuilder().withUrl(`${API_BASE}/guest-hub`).withAutomaticReconnect().build();
+    guestConnRef.current = conn;
+
+    conn.on("ConversationMessage", (p: any) => {
+      if (p?.conversationId !== conversationId) return;
+      if (p?.from === "guest") return;
+      const from = typeof p?.from === "string" && p.from.startsWith("agent:") ? "agent" : "bot";
+      setMessages((m) => [...m, { from, text: p.body }]);
+    });
+
+    conn
+      .start()
+      .then(() => conn.invoke("JoinConversation", conversationId))
+      .catch(() => {
+        // keep the user in queue even if realtime connection fails
+      });
+
+    return () => {
+      conn.stop();
+    };
+  }, [conversationId]);
 
   function botAnswer(question: string) {
     const q = question.toLowerCase();
@@ -500,7 +550,7 @@ function LiveChatPage() {
       pushBot("Thanks. I'm creating your ticket and placing you in the queue...", 900);
 
       try {
-        const res = await api<{ conversationId: number; ticketId: number }>("/inbound/chat", {
+        const res = await api<{ conversationId: number; ticketId: number; queuePosition: number }>("/inbound/chat", {
           method: "POST",
           body: JSON.stringify({
             from: email || phone || "web",
@@ -517,13 +567,31 @@ function LiveChatPage() {
         });
 
         setTicketId(res.ticketId);
+        setQueuePosition(res.queuePosition ?? null);
+        setConversationId(res.conversationId);
         setStep("queued");
-        pushBot(`You're in the queue. Ticket #${res.ticketId} has been created.`, 800);
+        if (res.queuePosition && res.queuePosition > 0) {
+          pushBot(`You're in the queue. Your current position is ${res.queuePosition}.`, 800);
+        } else {
+          pushBot("You're in the queue. An agent will be with you shortly.", 800);
+        }
         pushBot("An agent will join shortly.", 900);
       } catch (e: any) {
         setError(e.message || "Failed to create ticket");
         setStep("issue");
         pushBot("Something went wrong. Please try describing the issue again.", 700);
+      }
+      return;
+    }
+
+    if (step === "queued" && conversationId) {
+      try {
+        await api(`/guest/conversations/${conversationId}/messages`, {
+          method: "POST",
+          body: JSON.stringify({ body: value }),
+        });
+      } catch (e: any) {
+        setError(e.message || "Failed to send message");
       }
       return;
     }
@@ -558,15 +626,17 @@ function LiveChatPage() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={step === "queued" ? "You're in queue..." : "Type your response"}
-            disabled={step === "submitting" || step === "queued"}
+            placeholder={step === "queued" ? "Send a message while you wait..." : "Type your response"}
+            disabled={step === "submitting"}
           />
-          <button className="primary" type="submit" disabled={step === "submitting" || step === "queued"}>
+          <button className="primary" type="submit" disabled={step === "submitting"}>
             Send
           </button>
         </form>
 
-        {ticketId && <div className="status success">You are queued. Ticket #{ticketId} is waiting for an agent.</div>}
+        {queuePosition && (
+          <div className="status success">You are queued. Your position is {queuePosition}.</div>
+        )}
         {error && <div className="status error">{error}</div>}
       </section>
     </div>

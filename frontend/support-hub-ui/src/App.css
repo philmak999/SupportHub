@@ -183,6 +183,10 @@
   justify-content: flex-start;
 }
 
+.chat-message.agent {
+  justify-content: flex-start;
+}
+
 .chat-message.user {
   justify-content: flex-end;
 }
@@ -313,6 +317,44 @@
 .nav-link.active {
   background: #1d4ed8;
   color: #ffffff;
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.nav-menu {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  min-width: 160px;
+  display: grid;
+  padding: 6px;
+  z-index: 10;
+}
+
+.nav-menu-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: #1f2937;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nav-menu-item:hover {
+  background: #eef2ff;
+  color: #1d4ed8;
 }
 
 .bot-widget {

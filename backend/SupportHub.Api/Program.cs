@@ -86,5 +86,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<SupportHubHub>("/hub");
+app.MapHub<GuestHub>("/guest-hub");
 
 app.Run();

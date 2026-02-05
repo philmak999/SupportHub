@@ -123,16 +123,34 @@ public class RoutingEngine
     {
         if (ticket.AssignedAgentUserId != null) return;
 
-        // candidates: agents mapped to queue, available, below cap, lowest workload
-        var candidates = await _db.Agents
+        // candidates: agents mapped to queue, lowest workload, with fallbacks if none are available
+        var baseQuery = _db.Agents
             .Include(a => a.User)
             .Include(a => a.AgentQueues)
-            .Where(a =>
-                a.Presence == Presence.Available &&
-                a.ActiveTicketCount < a.MaxActiveTickets &&
-                a.AgentQueues.Any(aq => aq.QueueId == queueId))
+            .Where(a => a.AgentQueues.Any(aq => aq.QueueId == queueId));
+
+        var candidates = await baseQuery
+            .Where(a => a.Presence == Presence.Available && a.ActiveTicketCount < a.MaxActiveTickets)
             .OrderBy(a => a.ActiveTicketCount)
+            .ThenBy(a => a.User!.Name)
             .ToListAsync();
+
+        if (candidates.Count == 0)
+        {
+            candidates = await baseQuery
+                .Where(a => a.ActiveTicketCount < a.MaxActiveTickets)
+                .OrderBy(a => a.ActiveTicketCount)
+                .ThenBy(a => a.User!.Name)
+                .ToListAsync();
+        }
+
+        if (candidates.Count == 0)
+        {
+            candidates = await baseQuery
+                .OrderBy(a => a.ActiveTicketCount)
+                .ThenBy(a => a.User!.Name)
+                .ToListAsync();
+        }
 
         var chosen = candidates.FirstOrDefault();
         if (chosen == null) return;

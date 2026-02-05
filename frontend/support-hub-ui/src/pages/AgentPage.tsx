@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
 import type { ConversationView, TicketListItem } from "../types";
+import { onHubEvent } from "../realtime/hub";
 
 export default function AgentPage() {
   const [tickets, setTickets] = useState<TicketListItem[]>([]);
@@ -29,6 +30,18 @@ export default function AgentPage() {
     if (selected) loadConversation(selected);
   }, [selected]);
 
+  useEffect(() => {
+    const off = onHubEvent((name, payload) => {
+      if (name !== "ConversationMessage") return;
+      if (!view) return;
+      if (payload?.conversationId === view.conversationId) {
+        loadConversation(view.ticketId);
+        loadTickets();
+      }
+    });
+    return off;
+  }, [view]);
+
   async function sendReply() {
     if (!view || !reply.trim()) return;
     await api(`/conversations/${view.conversationId}/messages`, {
@@ -43,6 +56,18 @@ export default function AgentPage() {
   async function setStatus(status: string) {
     if (!selectedTicket) return;
     await api(`/tickets/${selectedTicket.id}`, { method: "PATCH", body: JSON.stringify({ status }) });
+    await loadTickets();
+  }
+
+  async function openTicket() {
+    if (!view || !selectedTicket) return;
+    await api(`/tickets/${selectedTicket.id}`, { method: "PATCH", body: JSON.stringify({ status: "Open" }) });
+    const message = `Hi ${view.customer.name}, I'm your support agent and I'm here to help.`;
+    await api(`/conversations/${view.conversationId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({ body: message }),
+    });
+    await loadConversation(view.ticketId);
     await loadTickets();
   }
 
@@ -94,7 +119,7 @@ export default function AgentPage() {
               </div>
 
               <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-                <button onClick={() => setStatus("Open")}>Open</button>
+                <button onClick={openTicket}>Enter Live Chat</button>
                 <button onClick={() => setStatus("Pending")}>Pending</button>
                 <button onClick={() => setStatus("Resolved")}>Resolved</button>
                 <button onClick={() => setStatus("Closed")}>Closed</button>

@@ -17,11 +17,13 @@ public class ConversationsController : ControllerBase
 {
     private readonly AppDbContext _db;
     private readonly IHubContext<SupportHubHub> _hub;
+    private readonly IHubContext<GuestHub> _guestHub;
 
-    public ConversationsController(AppDbContext db, IHubContext<SupportHubHub> hub)
+    public ConversationsController(AppDbContext db, IHubContext<SupportHubHub> hub, IHubContext<GuestHub> guestHub)
     {
         _db = db;
         _hub = hub;
+        _guestHub = guestHub;
     }
 
     [HttpPost("{conversationId:int}/messages")]
@@ -58,6 +60,33 @@ public class ConversationsController : ControllerBase
 
         await _hub.Clients.Groups("Supervisor").SendAsync("TicketCreatedOrUpdated", new { ticketId = t?.Id });
         await _hub.Clients.Groups("Agent").SendAsync("TicketCreatedOrUpdated", new { ticketId = t?.Id });
+        await _hub.Clients.Groups("Supervisor").SendAsync("ConversationMessage", new
+        {
+            conversationId = convo.Id,
+            ticketId = t?.Id,
+            body = msg.Body,
+            from = msg.From,
+            direction = msg.Direction.ToString(),
+            sentAt = msg.SentAt
+        });
+        await _hub.Clients.Groups("Agent").SendAsync("ConversationMessage", new
+        {
+            conversationId = convo.Id,
+            ticketId = t?.Id,
+            body = msg.Body,
+            from = msg.From,
+            direction = msg.Direction.ToString(),
+            sentAt = msg.SentAt
+        });
+        await _guestHub.Clients.Groups($"convo:{convo.Id}").SendAsync("ConversationMessage", new
+        {
+            conversationId = convo.Id,
+            ticketId = t?.Id,
+            body = msg.Body,
+            from = msg.From,
+            direction = msg.Direction.ToString(),
+            sentAt = msg.SentAt
+        });
 
         return Ok(new { messageId = msg.Id });
     }
