@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "D8RzSwSMMZsmyw5xbkbylolTpr394wqPPl8hWUDBU67qZmyrO/vYPhVLDZ3mdqvZ2lkauxl3dV/neTdxwKFwpA==",
+  "dgSpecHash": "BqpznDLYojN+2RqSNSbDogTs9RMJYmKX9SGjLgBtzCvNc2x5ntrSjT/tFlqU7YelP39FZ7w3U+zP0ap30XzHLQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\SupportHub.Api.csproj",
+  "projectFilePath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\SupportHub.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Phil\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\Phil\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.10\\microsoft.aspnetcore.authentication.jwtbearer.7.0.10.nupkg.sha512",

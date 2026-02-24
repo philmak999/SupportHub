@@ -45,7 +45,7 @@ This frontend is the operator console for the SupportHub omnichannel ticketing d
 
 **Run**
 ```powershell
-cd support-hub\frontend\support-hub-ui
+cd support-hub\frontend
 npm install
 npm run dev
 ```

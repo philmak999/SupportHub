@@ -10,7 +10,7 @@ This backend implements an omnichannel ticket routing system with authentication
 
 **Run**
 ```powershell
-cd support-hub\backend\SupportHub.Api
+cd support-hub\backend
 dotnet restore
 dotnet run
 ```

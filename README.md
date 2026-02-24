@@ -1,48 +1,29 @@
-# SupportHub: Intelligent Ticket Routing + Omnichannel Hub
+SupportHub (Personal Project)
 
-SupportHub is a full-stack reference implementation of how modern support organizations route, prioritize, and resolve inbound support requests across chat, email, and SMS. It combines an authenticated API, rule-based routing logic, real-time updates, and role-specific UI so teams can manage customer conversations in one place.
+A full-stack omnichannel support hub built to practice modern routing, prioritization, and real-time collaboration. The UI focuses on agent and supervisor workflows, while the backend exposes clean API endpoints and SignalR events that can scale as the product grows.
 
-**Why This Matters In Business**
-- **Operational efficiency**: Routing rules automate where work goes, reducing manual triage and response time.
-- **Better customer experience**: VIPs and urgent topics get prioritized consistently.
-- **Supervisory visibility**: Supervisors can monitor queues, workload, and assignment status in real time.
-- **Agent focus**: Agents see only the tickets assigned to them and can respond quickly.
-- **Auditability**: Centralized tickets and conversation history create a clear record.
+Highlights (Customer UX)
+- Unified view of chat, email, and SMS conversations in a single workspace.
+- Role-based experiences for agents and supervisors.
+- Clear queue visibility with priority and category context.
+- Real-time ticket updates and assignments via SignalR.
+- Fast routing decisions based on configurable rules.
 
-**What The System Demonstrates**
-- **API design**: Auth, inbound ingestion, ticket operations, queue stats, and rules management.
-- **Business logic**: Rule-based routing with priorities and auto-assignment.
-- **Realtime features**: SignalR pushes ticket updates and assignments instantly.
-- **Omnichannel handling**: Inbound events from chat, email, and SMS use the same workflow.
-- **Enterprise relevance**: Role-based permissions (Agent, Supervisor, Admin) and scalable routing.
+Core Features
+- Auth with JWT for API and SignalR access.
+- Inbound ingestion for chat, email, and SMS.
+- Ticket lifecycle management with status and assignment updates.
+- Queue stats and supervisor visibility.
+- Routing rules engine with condition/action JSON.
 
-**Project Structure**
-- `backend/SupportHub.Api`
-- ASP.NET Core API + EF Core + JWT + SignalR.
-- Inbound endpoints, routing engine, real-time events, and data persistence.
-- `frontend/support-hub-ui`
-- React + Vite + TypeScript UI.
-- Agent and supervisor consoles, rules editor, and real-time updates.
+Scalability and Architecture
+- Clean separation between frontend and backend with an API-driven flow.
+- Modular controller design and service layer for routing logic.
+- SignalR-based real-time events for scalable client updates.
+- Routing rules can expand to additional conditions and actions.
+- Ready for database-backed persistence as datasets grow.
 
-**Quick Start**
-```powershell
-# Backend
-cd support-hub\backend\SupportHub.Api
-dotnet restore
-dotnet run
-
-# Frontend (new terminal)
-cd support-hub\frontend\support-hub-ui
-npm install
-npm run dev
-```
-
-**How It Fits In Practice**
-- **Customer support**: Unified intake from email, chat, and SMS to avoid missed requests.
-- **IT helpdesk**: Rule-based routing to the right team (network, billing, access, etc.).
-- **Order/returns**: Auto-prioritize refund or delivery issues with clear SLA ownership.
-- **Compliance/SLA tracking**: Consistent queueing and priority logic to meet response targets.
-
-**Where To Look Next**
-- Backend details: `https://github.com/philmak999/SupportHub/blob/main/backend/SupportHub.Api/README.md`
-- Frontend details: `https://github.com/philmak999/SupportHub/blob/main/frontend/support-hub-ui/README.md`
+Tech Stack
+- Frontend: React + Vite + TypeScript
+- Backend: ASP.NET Core + EF Core + JWT + SignalR
+- HTTP: REST endpoints with JSON

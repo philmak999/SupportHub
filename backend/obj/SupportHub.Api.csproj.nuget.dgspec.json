@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\SupportHub.Api.csproj": {}
+    "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\SupportHub.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\SupportHub.Api.csproj": {
+    "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\SupportHub.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\SupportHub.Api.csproj",
+        "projectUniqueName": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\SupportHub.Api.csproj",
         "projectName": "SupportHub.Api",
-        "projectPath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\SupportHub.Api.csproj",
+        "projectPath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\SupportHub.Api.csproj",
         "packagesPath": "C:\\Users\\Phil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\supporthub.api\\obj\\",
+        "outputPath": "C:\\Users\\Phil\\Desktop\\Personal Projects\\Communications\\support-hub\\backend\\SupportHub.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Phil\\AppData\\Roaming\\NuGet\\NuGet.Config"
